@@ -15,6 +15,13 @@
   },
   {
     "id": "2",
+    "title": "example2.mp3",
+    "artist": "Workout",
+    "file": "music/Cooldown/example2.mp3",
+    "section": "Cooldown"
+  },
+  {
+    "id": "3",
     "title": "example.mp3",
     "artist": "Workout",
     "file": "music/Warmup/example.mp3",
