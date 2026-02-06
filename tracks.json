@@ -8,48 +8,55 @@
   },
   {
     "id": "1",
+    "title": "Feeling Good Mix - Emma Péters, Carla Morrison_v2.mp3",
+    "artist": "Workout",
+    "file": "music/Cardio/Feeling Good Mix - Emma Péters, Carla Morrison_v2.mp3",
+    "section": "Cardio"
+  },
+  {
+    "id": "2",
     "title": "happier.mp3",
     "artist": "Workout",
     "file": "music/Cardio/happier.mp3",
     "section": "Cardio"
   },
   {
-    "id": "2",
+    "id": "3",
     "title": "crying.  heartbroken playlist_v1.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/crying.  heartbroken playlist_v1.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "3",
+    "id": "4",
     "title": "crying.  heartbroken playlist_v2.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/crying.  heartbroken playlist_v2.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "4",
+    "id": "5",
     "title": "crying.  heartbroken playlist_v3.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/crying.  heartbroken playlist_v3.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "5",
+    "id": "6",
     "title": "crying.  heartbroken playlist_v4.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/crying.  heartbroken playlist_v4.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "6",
+    "id": "7",
     "title": "somewhere_only_we_know.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/somewhere_only_we_know.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "7",
+    "id": "8",
     "title": "another_love.mp3",
     "artist": "Workout",
     "file": "music/Warmup/another_love.mp3",
