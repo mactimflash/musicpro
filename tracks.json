@@ -3,25 +3,18 @@
     "id": "0",
     "title": "example.mp3",
     "artist": "Workout",
-    "file": "music/Cardio/example.mp3",
-    "section": "Cardio"
-  },
-  {
-    "id": "1",
-    "title": "example.mp3",
-    "artist": "Workout",
     "file": "music/Cooldown/example.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "2",
+    "id": "1",
     "title": "example2.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/example2.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "3",
+    "id": "2",
     "title": "example.mp3",
     "artist": "Workout",
     "file": "music/Warmup/example.mp3",
