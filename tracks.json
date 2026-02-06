@@ -12,5 +12,12 @@
     "artist": "Workout",
     "file": "music/Cooldown/example2.mp3",
     "section": "Cooldown"
+  },
+  {
+    "id": "2",
+    "title": "another_love.mp3",
+    "artist": "Workout",
+    "file": "music/Warmup/another_love.mp3",
+    "section": "Warmup"
   }
 ]
