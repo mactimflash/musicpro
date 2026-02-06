@@ -1,1 +1,164 @@
-<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>MusicPro</title><link rel='stylesheet' href='styles.css'></head><body><h2>MusicPro</h2><button id='prev'>⏮</button><button id='play'>▶</button><button id='next'>⏭</button><select id='section'><option>All</option><option>Warmup</option><option>Cardio</option><option>Cooldown</option></select><ul id='list'></ul><audio id='audio'></audio><script src='app.js'></script></body></html>
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>MusicPro</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="app">
+    <!-- Top -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">♪</div>
+        <div class="brandText">
+          <div class="brandName">MusicPro</div>
+          <div class="brandSub" id="brandSub">Workout player • iOS Safari friendly</div>
+        </div>
+      </div>
+
+      <button class="iconBtn" id="btnReload" title="Reload">
+        <span aria-hidden="true">↻</span>
+      </button>
+    </header>
+
+    <!-- Content -->
+    <main class="main">
+      <!-- Hero -->
+      <section class="hero card">
+        <div class="artWrap">
+          <div class="art" id="art">💪</div>
+          <div class="shine" aria-hidden="true"></div>
+        </div>
+
+        <div class="heroMeta">
+          <div class="nowTitle" id="nowTitle">Chọn 1 bài để bắt đầu</div>
+          <div class="nowSub" id="nowSub">—</div>
+
+          <div class="progressRow">
+            <span class="t" id="tCur">0:00</span>
+            <input id="seek" type="range" min="0" max="100" value="0" />
+            <span class="t" id="tDur">0:00</span>
+          </div>
+
+          <div class="controls">
+            <button class="ctl ghost" id="btnPrev" title="Previous">⏮</button>
+            <button class="ctl play" id="btnPlay" title="Play/Pause">▶</button>
+            <button class="ctl ghost" id="btnNext" title="Next">⏭</button>
+          </div>
+
+          <div class="toggles">
+            <button class="chip" id="btnShuffle" aria-pressed="false">🔀 Shuffle</button>
+            <button class="chip" id="btnLoop" aria-pressed="false">🔁 Loop</button>
+
+            <div class="vol">
+              <span class="volIcon" aria-hidden="true">🔊</span>
+              <input id="vol" type="range" min="0" max="1" step="0.01" value="1" />
+            </div>
+          </div>
+
+          <div class="hint">
+            iOS Safari yêu cầu <b>bấm Play</b> để bắt đầu phát. (Không autoplay)
+          </div>
+        </div>
+
+        <audio id="audio" preload="metadata" playsinline></audio>
+      </section>
+
+      <!-- Library -->
+      <section class="library card">
+        <div class="libTop">
+          <div class="searchWrap">
+            <span class="searchIcon" aria-hidden="true">⌕</span>
+            <input id="q" class="search" placeholder="Tìm bài / bpm / warmup / cardio / cooldown…" />
+          </div>
+
+          <div class="filters">
+            <select id="section" class="select">
+              <option value="All">All</option>
+              <option value="Warmup">Warmup</option>
+              <option value="Cardio">Cardio</option>
+              <option value="Cooldown">Cooldown</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <select id="sort" class="select">
+              <option value="added">Mới thêm</option>
+              <option value="title">Tên bài</option>
+              <option value="section">Section</option>
+              <option value="bpm">BPM</option>
+              <option value="duration">Thời lượng</option>
+            </select>
+          </div>
+        </div>
+
+        <ul class="list" id="list"></ul>
+      </section>
+    </main>
+
+    <!-- Bottom Now Playing (mobile sticky) -->
+    <footer class="mini" id="mini">
+      <button class="miniMain" id="miniOpen" title="Open player">
+        <div class="miniArt" id="miniArt">💪</div>
+        <div class="miniText">
+          <div class="miniTitle" id="miniTitle">—</div>
+          <div class="miniSub" id="miniSubTitle">—</div>
+        </div>
+      </button>
+
+      <div class="miniBtns">
+        <button class="iconBtn" id="miniPrev" title="Prev">⏮</button>
+        <button class="iconBtn" id="miniPlay" title="Play/Pause">▶</button>
+        <button class="iconBtn" id="miniNext" title="Next">⏭</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Player sheet -->
+  <div class="sheet" id="sheet" aria-hidden="true">
+    <div class="sheetBack" id="sheetBack"></div>
+    <div class="sheetCard" role="dialog" aria-modal="true">
+      <div class="grab" aria-hidden="true"></div>
+      <div class="sheetTop">
+        <div class="sheetArt" id="sheetArt">💪</div>
+        <div class="sheetMeta">
+          <div class="sheetTitle" id="sheetTitle">—</div>
+          <div class="sheetSub" id="sheetSub">—</div>
+        </div>
+        <button class="iconBtn" id="sheetClose" title="Close">✕</button>
+      </div>
+
+      <div class="sheetControls">
+        <div class="progressRow">
+          <span class="t" id="tCur2">0:00</span>
+          <input id="seek2" type="range" min="0" max="100" value="0" />
+          <span class="t" id="tDur2">0:00</span>
+        </div>
+
+        <div class="controls">
+          <button class="ctl ghost" id="btnPrev2">⏮</button>
+          <button class="ctl play" id="btnPlay2">▶</button>
+          <button class="ctl ghost" id="btnNext2">⏭</button>
+        </div>
+
+        <div class="toggles">
+          <button class="chip" id="btnShuffle2" aria-pressed="false">🔀 Shuffle</button>
+          <button class="chip" id="btnLoop2" aria-pressed="false">🔁 Loop</button>
+
+          <div class="vol">
+            <span class="volIcon" aria-hidden="true">🔊</span>
+            <input id="vol2" type="range" min="0" max="1" step="0.01" value="1" />
+          </div>
+        </div>
+
+        <div class="sheetHint">Tip: rename file dạng <b>cardio-145bpm.mp3</b> để BPM hiện tự động.</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
