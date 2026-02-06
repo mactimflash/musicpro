@@ -1,6 +1,13 @@
 [
   {
     "id": "0",
+    "title": "happier.mp3",
+    "artist": "Workout",
+    "file": "music/Cardio/happier.mp3",
+    "section": "Cardio"
+  },
+  {
+    "id": "1",
     "title": "example2.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/example2.mp3",
