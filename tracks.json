@@ -71,6 +71,41 @@
   },
   {
     "id": "10",
+    "title": "Feels like the FIRST TIME_v3.mp3",
+    "artist": "Workout",
+    "file": "music/Warmup/Feels like the FIRST TIME_v3.mp3",
+    "section": "Warmup"
+  },
+  {
+    "id": "11",
+    "title": "Feels like the FIRST TIME_v4.mp3",
+    "artist": "Workout",
+    "file": "music/Warmup/Feels like the FIRST TIME_v4.mp3",
+    "section": "Warmup"
+  },
+  {
+    "id": "12",
+    "title": "Feels like the FIRST TIME_v5.mp3",
+    "artist": "Workout",
+    "file": "music/Warmup/Feels like the FIRST TIME_v5.mp3",
+    "section": "Warmup"
+  },
+  {
+    "id": "13",
+    "title": "Feels like the FIRST TIME_v6.mp3",
+    "artist": "Workout",
+    "file": "music/Warmup/Feels like the FIRST TIME_v6.mp3",
+    "section": "Warmup"
+  },
+  {
+    "id": "14",
+    "title": "Feels like the FIRST TIME_v7.mp3",
+    "artist": "Workout",
+    "file": "music/Warmup/Feels like the FIRST TIME_v7.mp3",
+    "section": "Warmup"
+  },
+  {
+    "id": "15",
     "title": "another_love.mp3",
     "artist": "Workout",
     "file": "music/Warmup/another_love.mp3",
