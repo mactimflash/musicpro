@@ -1,0 +1,23 @@
+[
+  {
+    "id": "0",
+    "title": "Example Warmup",
+    "artist": "Workout",
+    "file": "music/Warmup/example.mp3",
+    "section": "Warmup"
+  },
+  {
+    "id": "1",
+    "title": "Example Cardio",
+    "artist": "Workout",
+    "file": "music/Cardio/example.mp3",
+    "section": "Cardio"
+  },
+  {
+    "id": "2",
+    "title": "Example Cooldown",
+    "artist": "Workout",
+    "file": "music/Cooldown/example.mp3",
+    "section": "Cooldown"
+  }
+]
