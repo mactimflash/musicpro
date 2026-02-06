@@ -1,93 +1,101 @@
 const audio = document.getElementById("audio");
-const list = document.getElementById("list");
-const playBtn = document.getElementById("play");
-const nextBtn = document.getElementById("next");
-const prevBtn = document.getElementById("prev");
-const section = document.getElementById("section");
+const listEl = document.getElementById("list");
+
+// Hỗ trợ cả 2 bộ id (bản tối giản hoặc bản UI lớn)
+const playBtn = document.getElementById("play") || document.getElementById("btnPlay");
+const nextBtn = document.getElementById("next") || document.getElementById("btnNext");
+const prevBtn = document.getElementById("prev") || document.getElementById("btnPrev");
+const sectionSel = document.getElementById("section") || null;
 
 let tracks = [];
 let currentIndex = 0;
 
-// Debug lỗi load audio (rất hữu ích trên iPhone)
-audio.addEventListener("error", () => {
-  const err = audio.error;
-  alert(
-    "Audio load error. " +
-    "Kiểm tra tên file/ký tự đặc biệt/case-sensitive.\n" +
-    "code=" + (err?.code ?? "unknown")
-  );
-});
-
-fetch("tracks.json", { cache: "no-store" })
-  .then(r => r.json())
-  .then(j => {
-    tracks = j;
-    render();
-    loadByIndex(0, false);
-  });
-
-function resolveSrc(filePath) {
-  // Make absolute & safe for iOS Safari
-  return new URL(filePath, location.href).href;
+function safeAudioUrl(filePath) {
+  // Encode từng phần của path để tránh lỗi space, dấu, ký tự lạ
+  // Ví dụ: "music/Warmup/Bài 1 #1.mp3" -> encode đúng
+  const parts = String(filePath).split("/").map(p => encodeURIComponent(p));
+  const encodedPath = parts.join("/");
+  return new URL(encodedPath, location.href).href;
 }
 
 function render() {
-  list.innerHTML = "";
+  listEl.innerHTML = "";
 
-  const sec = section.value;
+  const sec = sectionSel ? sectionSel.value : "All";
+
+  // mapping realIndex để không bị lệch khi filter
   const filtered = tracks
     .map((t, realIndex) => ({ t, realIndex }))
     .filter(x => sec === "All" || x.t.section === sec);
 
   filtered.forEach(({ t, realIndex }) => {
     const li = document.createElement("li");
-    li.style.padding = "10px";
-    li.style.cursor = "pointer";
+    li.className = "item";
+    li.dataset.realIndex = String(realIndex);
     li.textContent = `${t.title} (${t.section})`;
 
-    // Store real index
-    li.dataset.realIndex = String(realIndex);
-
-    li.onclick = async () => {
+    li.addEventListener("click", async () => {
       currentIndex = Number(li.dataset.realIndex);
       await loadByIndex(currentIndex, true);
-    };
+    });
 
-    list.appendChild(li);
+    listEl.appendChild(li);
   });
 }
 
-section.onchange = render;
-
 async function loadByIndex(i, autoplay) {
-  if (!tracks[i]) return;
-  audio.src = resolveSrc(tracks[i].file);
+  const track = tracks[i];
+  if (!track) return;
+
+  const src = safeAudioUrl(track.file);
+  audio.src = src;
 
   if (autoplay) {
     try {
-      await audio.play(); // iOS requires user gesture; click qualifies
+      await audio.play(); // click = user gesture => iOS OK
     } catch (e) {
-      // If blocked, user can press Play manually
+      // nếu bị iOS chặn (hiếm), user bấm Play là chạy
       console.log("play blocked:", e);
     }
   }
 }
 
-playBtn.onclick = async () => {
+async function togglePlay() {
   try {
     if (audio.paused) await audio.play();
     else audio.pause();
   } catch (e) {
     console.log(e);
   }
-};
+}
 
-nextBtn.onclick = async () => {
+audio.addEventListener("error", () => {
+  console.log("Audio error:", audio.error, audio.src);
+  alert("Không phát được audio từ playlist.\n" +
+        "Thường do tên file có ký tự đặc biệt hoặc sai hoa/thường.\n" +
+        "Hãy thử đổi tên file (không dấu, không # % ? & +) và push lại.");
+});
+
+if (playBtn) playBtn.addEventListener("click", togglePlay);
+
+if (nextBtn) nextBtn.addEventListener("click", async () => {
+  if (!tracks.length) return;
   currentIndex = (currentIndex + 1) % tracks.length;
   await loadByIndex(currentIndex, true);
-};
+});
 
-prevBtn.onclick = async () => {
+if (prevBtn) prevBtn.addEventListener("click", async () => {
+  if (!tracks.length) return;
   currentIndex = currentIndex > 0 ? currentIndex - 1 : tracks.length - 1;
   await loadByIndex(currentIndex, true);
-};
+});
+
+if (sectionSel) sectionSel.addEventListener("change", render);
+
+fetch("tracks.json", { cache: "no-store" })
+  .then(r => r.json())
+  .then(j => {
+    tracks = j || [];
+    render();
+    loadByIndex(0, false);
+  });
