@@ -22,13 +22,20 @@
   },
   {
     "id": "3",
+    "title": "crying.  heartbroken playlist_v3.mp3",
+    "artist": "Workout",
+    "file": "music/Cooldown/crying.  heartbroken playlist_v3.mp3",
+    "section": "Cooldown"
+  },
+  {
+    "id": "4",
     "title": "somewhere_only_we_know.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/somewhere_only_we_know.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "4",
+    "id": "5",
     "title": "another_love.mp3",
     "artist": "Workout",
     "file": "music/Warmup/another_love.mp3",
