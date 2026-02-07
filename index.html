@@ -3,12 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1020" />
+  <meta name="theme-color" content="#070b16" />
   <title>MusicPro</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
+  <!-- Fixed background layer (iOS Safari stable) -->
+  <div class="bg" aria-hidden="true"></div>
+
   <div class="app">
     <!-- Top -->
     <header class="topbar">
@@ -20,14 +23,14 @@
         </div>
       </div>
 
-      <button class="iconBtn" id="btnReload" title="Reload">
+      <button class="iconBtn" id="btnReload" title="Reload" type="button">
         <span aria-hidden="true">↻</span>
       </button>
     </header>
 
     <!-- Content -->
     <main class="main">
-      <!-- Hero -->
+      <!-- Hero / Player -->
       <section class="hero card">
         <div class="artWrap">
           <div class="art" id="art">💪</div>
@@ -45,16 +48,16 @@
           </div>
 
           <div class="controls">
-            <button class="ctl ghost" id="btnPrev" title="Previous">⏮</button>
-            <button class="ctl play" id="btnPlay" title="Play/Pause">▶</button>
-            <button class="ctl ghost" id="btnNext" title="Next">⏭</button>
+            <button class="ctl ghost" id="btnPrev" type="button" title="Previous">⏮</button>
+            <button class="ctl play" id="btnPlay" type="button" title="Play/Pause">▶</button>
+            <button class="ctl ghost" id="btnNext" type="button" title="Next">⏭</button>
           </div>
 
           <div class="toggles">
-            <button class="chip" id="btnShuffle" aria-pressed="false">🔀 Shuffle</button>
-            <button class="chip" id="btnLoop" aria-pressed="false">🔁 Loop</button>
+            <button class="chip" id="btnShuffle" type="button" aria-pressed="false">🔀 Shuffle</button>
+            <button class="chip" id="btnLoop" type="button" aria-pressed="false">🔁 Loop</button>
 
-            <div class="vol">
+            <div class="vol" aria-label="Volume">
               <span class="volIcon" aria-hidden="true">🔊</span>
               <input id="vol" type="range" min="0" max="1" step="0.01" value="1" />
             </div>
@@ -99,9 +102,9 @@
       </section>
     </main>
 
-    <!-- Bottom Now Playing (mobile sticky) -->
+    <!-- Bottom Now Playing (fixed for iOS) -->
     <footer class="mini" id="mini">
-      <button class="miniMain" id="miniOpen" title="Open player">
+      <button class="miniMain" id="miniOpen" type="button" title="Open player">
         <div class="miniArt" id="miniArt">💪</div>
         <div class="miniText">
           <div class="miniTitle" id="miniTitle">—</div>
@@ -110,9 +113,9 @@
       </button>
 
       <div class="miniBtns">
-        <button class="iconBtn" id="miniPrev" title="Prev">⏮</button>
-        <button class="iconBtn" id="miniPlay" title="Play/Pause">▶</button>
-        <button class="iconBtn" id="miniNext" title="Next">⏭</button>
+        <button class="iconBtn" id="miniPrev" type="button" title="Prev">⏮</button>
+        <button class="iconBtn" id="miniPlay" type="button" title="Play/Pause">▶</button>
+        <button class="iconBtn" id="miniNext" type="button" title="Next">⏭</button>
       </div>
     </footer>
   </div>
@@ -128,7 +131,7 @@
           <div class="sheetTitle" id="sheetTitle">—</div>
           <div class="sheetSub" id="sheetSub">—</div>
         </div>
-        <button class="iconBtn" id="sheetClose" title="Close">✕</button>
+        <button class="iconBtn" id="sheetClose" type="button" title="Close">✕</button>
       </div>
 
       <div class="sheetControls">
@@ -139,22 +142,24 @@
         </div>
 
         <div class="controls">
-          <button class="ctl ghost" id="btnPrev2">⏮</button>
-          <button class="ctl play" id="btnPlay2">▶</button>
-          <button class="ctl ghost" id="btnNext2">⏭</button>
+          <button class="ctl ghost" id="btnPrev2" type="button">⏮</button>
+          <button class="ctl play" id="btnPlay2" type="button">▶</button>
+          <button class="ctl ghost" id="btnNext2" type="button">⏭</button>
         </div>
 
         <div class="toggles">
-          <button class="chip" id="btnShuffle2" aria-pressed="false">🔀 Shuffle</button>
-          <button class="chip" id="btnLoop2" aria-pressed="false">🔁 Loop</button>
+          <button class="chip" id="btnShuffle2" type="button" aria-pressed="false">🔀 Shuffle</button>
+          <button class="chip" id="btnLoop2" type="button" aria-pressed="false">🔁 Loop</button>
 
-          <div class="vol">
+          <div class="vol" aria-label="Volume">
             <span class="volIcon" aria-hidden="true">🔊</span>
             <input id="vol2" type="range" min="0" max="1" step="0.01" value="1" />
           </div>
         </div>
 
-        <div class="sheetHint">Tip: rename file dạng <b>cardio-145bpm.mp3</b> để BPM hiện tự động.</div>
+        <div class="sheetHint">
+          Tip: rename file dạng <b>cardio-145bpm.mp3</b> để BPM hiện tự động.
+        </div>
       </div>
     </div>
   </div>
