@@ -15,100 +15,79 @@
   },
   {
     "id": "2",
-    "title": "happier.mp3",
-    "artist": "Workout",
-    "file": "music/Cardio/happier.mp3",
-    "section": "Cardio"
-  },
-  {
-    "id": "3",
     "title": "crying.  heartbroken playlist_v1.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/crying.  heartbroken playlist_v1.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "4",
+    "id": "3",
     "title": "crying.  heartbroken playlist_v2.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/crying.  heartbroken playlist_v2.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "5",
+    "id": "4",
     "title": "crying.  heartbroken playlist_v3.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/crying.  heartbroken playlist_v3.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "6",
+    "id": "5",
     "title": "crying.  heartbroken playlist_v4.mp3",
     "artist": "Workout",
     "file": "music/Cooldown/crying.  heartbroken playlist_v4.mp3",
     "section": "Cooldown"
   },
   {
-    "id": "7",
-    "title": "somewhere_only_we_know.mp3",
-    "artist": "Workout",
-    "file": "music/Cooldown/somewhere_only_we_know.mp3",
-    "section": "Cooldown"
-  },
-  {
-    "id": "8",
+    "id": "6",
     "title": "Feels like the FIRST TIME_v1.mp3",
     "artist": "Workout",
     "file": "music/Warmup/Feels like the FIRST TIME_v1.mp3",
     "section": "Warmup"
   },
   {
-    "id": "9",
+    "id": "7",
     "title": "Feels like the FIRST TIME_v2.mp3",
     "artist": "Workout",
     "file": "music/Warmup/Feels like the FIRST TIME_v2.mp3",
     "section": "Warmup"
   },
   {
-    "id": "10",
+    "id": "8",
     "title": "Feels like the FIRST TIME_v3.mp3",
     "artist": "Workout",
     "file": "music/Warmup/Feels like the FIRST TIME_v3.mp3",
     "section": "Warmup"
   },
   {
-    "id": "11",
+    "id": "9",
     "title": "Feels like the FIRST TIME_v4.mp3",
     "artist": "Workout",
     "file": "music/Warmup/Feels like the FIRST TIME_v4.mp3",
     "section": "Warmup"
   },
   {
-    "id": "12",
+    "id": "10",
     "title": "Feels like the FIRST TIME_v5.mp3",
     "artist": "Workout",
     "file": "music/Warmup/Feels like the FIRST TIME_v5.mp3",
     "section": "Warmup"
   },
   {
-    "id": "13",
+    "id": "11",
     "title": "Feels like the FIRST TIME_v6.mp3",
     "artist": "Workout",
     "file": "music/Warmup/Feels like the FIRST TIME_v6.mp3",
     "section": "Warmup"
   },
   {
-    "id": "14",
+    "id": "12",
     "title": "Feels like the FIRST TIME_v7.mp3",
     "artist": "Workout",
     "file": "music/Warmup/Feels like the FIRST TIME_v7.mp3",
-    "section": "Warmup"
-  },
-  {
-    "id": "15",
-    "title": "another_love.mp3",
-    "artist": "Workout",
-    "file": "music/Warmup/another_love.mp3",
     "section": "Warmup"
   }
 ]
