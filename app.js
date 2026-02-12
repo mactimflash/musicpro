@@ -1,8 +1,13 @@
+// ========================
+// MusicPro (Queue + Multi-select) - iOS Safari friendly
+// ========================
+
 const audio = document.getElementById("audio");
 
 const nowTitle = document.getElementById("nowTitle");
 const nowSub = document.getElementById("nowSub");
 const art = document.getElementById("art");
+const brandSub = document.getElementById("brandSub");
 
 const tCur = document.getElementById("tCur");
 const tDur = document.getElementById("tDur");
@@ -20,10 +25,8 @@ const q = document.getElementById("q");
 const sectionSel = document.getElementById("section");
 const sortSel = document.getElementById("sort");
 const listEl = document.getElementById("list");
-const brandSub = document.getElementById("brandSub");
 
 // mini
-const mini = document.getElementById("mini");
 const miniOpen = document.getElementById("miniOpen");
 const miniArt = document.getElementById("miniArt");
 const miniTitle = document.getElementById("miniTitle");
@@ -49,12 +52,38 @@ const btnNext2 = document.getElementById("btnNext2");
 const btnShuffle2 = document.getElementById("btnShuffle2");
 const btnLoop2 = document.getElementById("btnLoop2");
 
+// queue/cart
+const queueEl = document.getElementById("queue");
+const cartDrop = document.getElementById("cartDrop");
+const cartSub = document.getElementById("cartSub");
+const btnQueueMode = document.getElementById("btnQueueMode");
+const btnClearQueue = document.getElementById("btnClearQueue");
+
+// multi-select
+const btnSelectMode = document.getElementById("btnSelectMode");
+const btnSelectAll = document.getElementById("btnSelectAll");
+const btnClearSel = document.getElementById("btnClearSel");
+const btnAddSelected = document.getElementById("btnAddSelected");
+const multiInfo = document.getElementById("multiInfo");
+
+// state
 let tracks = [];
 let view = [];
 let index = 0;
+
 let isShuffle = false;
 let isLoop = false;
 
+// Queue state: store realIndex in tracks[]
+let queue = [];
+let queuePos = 0;
+let playQueueMode = true;
+
+// Multi-select state
+let selectMode = false;
+let selected = new Set();
+
+// ---- utils ----
 const DEFAULT_SHUFFLE_ON_FIRST_RUN = true;
 
 function fmt(sec){
@@ -80,12 +109,13 @@ function coverEmoji(section){
 }
 
 function safeAudioUrl(filePath){
-  // Encode từng segment path để iOS Safari không “kẹt” khi tên có space/ký tự lạ
+  // Encode từng segment để iOS Safari không “kẹt” khi tên có space/ký tự lạ
   const parts = String(filePath).split("/").map(p => encodeURIComponent(p));
   return new URL(parts.join("/"), location.href).href;
 }
 
-function persist(){
+// ---- persistence ----
+function persistUI(){
   const s = {
     index,
     time: audio.currentTime || 0,
@@ -98,17 +128,16 @@ function persist(){
   };
   localStorage.setItem("musicpro_ui_state", JSON.stringify(s));
 }
-
-function restore(){
+function restoreUI(){
   try{
     const s = JSON.parse(localStorage.getItem("musicpro_ui_state") || "null");
     if(!s){
       isShuffle = DEFAULT_SHUFFLE_ON_FIRST_RUN;
-      btnShuffle.setAttribute("aria-pressed", String(isShuffle));
-      btnShuffle2.setAttribute("aria-pressed", String(isShuffle));
+      setShuffle(isShuffle);
       return;
     }
     index = Number.isFinite(s.index) ? s.index : 0;
+
     audio.volume = Number.isFinite(s.vol) ? s.vol : 1;
     vol.value = String(audio.volume);
     vol2.value = String(audio.volume);
@@ -117,26 +146,37 @@ function restore(){
     isLoop = !!s.isLoop;
     audio.loop = isLoop;
 
-    btnShuffle.setAttribute("aria-pressed", String(isShuffle));
-    btnShuffle2.setAttribute("aria-pressed", String(isShuffle));
-    btnLoop.setAttribute("aria-pressed", String(isLoop));
-    btnLoop2.setAttribute("aria-pressed", String(isLoop));
+    setShuffle(isShuffle);
+    setLoop(isLoop);
 
     if(typeof s.q === "string") q.value = s.q;
     if(s.section) sectionSel.value = s.section;
     if(s.sort) sortSel.value = s.sort;
   }catch{}
 }
+function saveQueue(){
+  localStorage.setItem("musicpro_queue", JSON.stringify({ queue, queuePos, playQueueMode }));
+}
+function loadQueue(){
+  try{
+    const s = JSON.parse(localStorage.getItem("musicpro_queue") || "null");
+    if(!s) return;
+    queue = Array.isArray(s.queue) ? s.queue : [];
+    queuePos = Number.isFinite(s.queuePos) ? s.queuePos : 0;
+    playQueueMode = !!s.playQueueMode;
+    btnQueueMode?.setAttribute("aria-pressed", String(playQueueMode));
+  }catch{}
+}
 
+// ---- Now playing UI ----
 function setNow(t){
   const bpm = t._bpm != null ? `BPM ${t._bpm}` : "BPM —";
   const section = t.section || "Other";
   const meta = `${t.artist || "Workout"} • ${section} • ${bpm}`;
+  const icon = t.coverEmoji || coverEmoji(section);
 
   nowTitle.textContent = t.title || "—";
   nowSub.textContent = meta;
-
-  const icon = t.coverEmoji || coverEmoji(section);
   art.textContent = icon;
 
   miniArt.textContent = icon;
@@ -158,14 +198,34 @@ function updatePlayIcons(){
   btnPlay2.textContent = icon;
 }
 
-function pickNextIndex(){
-  if(isShuffle){
-    if(tracks.length <= 1) return index;
-    let r = index;
-    while(r === index) r = Math.floor(Math.random() * tracks.length);
-    return r;
-  }
-  return (index + 1) % tracks.length;
+function highlightActive(){
+  document.querySelectorAll(".item").forEach(el=>{
+    el.classList.toggle("active", Number(el.dataset.realIndex) === index);
+  });
+  document.querySelectorAll(".qItem").forEach((el, pos)=>{
+    el.classList.toggle("active", playQueueMode && pos === queuePos);
+  });
+}
+
+function openSheet(){
+  sheet.classList.add("show");
+  sheet.setAttribute("aria-hidden", "false");
+}
+function closeSheet(){
+  sheet.classList.remove("show");
+  sheet.setAttribute("aria-hidden", "true");
+}
+
+// ---- playback logic ----
+function pickRandomIndex(){
+  if(tracks.length <= 1) return index;
+  let r = index;
+  while(r === index) r = Math.floor(Math.random() * tracks.length);
+  return r;
+}
+
+function nextIndexNormal(){
+  return isShuffle ? pickRandomIndex() : ((index + 1) % tracks.length);
 }
 
 function loadByIndex(i, autoplay=false){
@@ -180,18 +240,63 @@ function loadByIndex(i, autoplay=false){
   highlightActive();
 
   if(autoplay){
-    audio.play().catch(()=>{ /* iOS may block without gesture */ });
+    audio.play().catch(()=>{});
   }
   updatePlayIcons();
-  persist();
+  persistUI();
 }
 
-function highlightActive(){
-  document.querySelectorAll(".item").forEach(el=>{
-    el.classList.toggle("active", el.dataset.realIndex == index);
-  });
+function playNext(){
+  if(playQueueMode && queue.length){
+    if(queuePos + 1 >= queue.length){
+      // End of queue: stop at last
+      queuePos = queue.length - 1;
+      saveQueue();
+      renderQueue();
+      return;
+    }
+    queuePos++;
+    saveQueue();
+    renderQueue();
+    loadByIndex(queue[queuePos], true);
+    return;
+  }
+  loadByIndex(nextIndexNormal(), true);
 }
 
+function playPrev(){
+  if(audio.currentTime > 3){
+    audio.currentTime = 0;
+    return;
+  }
+
+  if(playQueueMode && queue.length){
+    queuePos = Math.max(0, queuePos - 1);
+    saveQueue();
+    renderQueue();
+    loadByIndex(queue[queuePos], true);
+    return;
+  }
+
+  loadByIndex(index - 1, true);
+}
+
+// ---- shuffle/loop ----
+function setShuffle(v){
+  isShuffle = !!v;
+  btnShuffle.setAttribute("aria-pressed", String(isShuffle));
+  btnShuffle2.setAttribute("aria-pressed", String(isShuffle));
+  persistUI();
+}
+function setLoop(v){
+  isLoop = !!v;
+  audio.loop = isLoop;
+  btnLoop.setAttribute("aria-pressed", String(isLoop));
+  btnLoop2.setAttribute("aria-pressed", String(isLoop));
+  persistUI();
+}
+
+// ---- query / list ----
 function applyQuery(){
   const text = (q.value || "").trim().toLowerCase();
   const sec = sectionSel.value;
@@ -221,19 +326,197 @@ function applyQuery(){
   });
 
   renderList();
-  persist();
+  persistUI();
 }
 
+// ---- multi-select ----
+function setSelectMode(v){
+  selectMode = !!v;
+  btnSelectMode?.setAttribute("aria-pressed", String(selectMode));
+  if(!selectMode) selected.clear();
+  updateMultiInfo();
+  renderList();
+}
+
+function toggleSelected(realIndex){
+  if(selected.has(realIndex)) selected.delete(realIndex);
+  else selected.add(realIndex);
+  updateMultiInfo();
+  highlightSelectedInDOM();
+}
+
+function updateMultiInfo(){
+  if(!multiInfo) return;
+  multiInfo.textContent = `${selected.size} selected`;
+}
+
+function highlightSelectedInDOM(){
+  document.querySelectorAll(".item").forEach(el=>{
+    const ri = Number(el.dataset.realIndex);
+    el.classList.toggle("selected", selected.has(ri));
+    const box = el.querySelector(".selBox");
+    if(box) box.textContent = selected.has(ri) ? "✓" : "";
+  });
+}
+
+// ---- queue/cart ----
+function addToQueue(realIndex){
+  if(!tracks[realIndex]) return;
+  queue.push(realIndex);
+  saveQueue();
+  renderQueue();
+}
+
+function removeFromQueue(pos){
+  queue.splice(pos, 1);
+  if(queuePos >= queue.length) queuePos = Math.max(0, queue.length - 1);
+  saveQueue();
+  renderQueue();
+}
+
+function moveQueue(from, to){
+  if(from === to) return;
+  const item = queue.splice(from, 1)[0];
+  queue.splice(to, 0, item);
+
+  // keep queuePos stable
+  if(from === queuePos) queuePos = to;
+  else{
+    if(from < queuePos && to >= queuePos) queuePos--;
+    if(from > queuePos && to <= queuePos) queuePos++;
+  }
+
+  saveQueue();
+  renderQueue();
+}
+
+function renderQueue(){
+  if(!queueEl) return;
+  queueEl.innerHTML = "";
+  cartSub.textContent = `${queue.length} bài`;
+
+  queue.forEach((realIndex, pos) => {
+    const t = tracks[realIndex];
+
+    const li = document.createElement("li");
+    li.className = "qItem" + (playQueueMode && pos === queuePos ? " active" : "");
+
+    const drag = document.createElement("div");
+    drag.className = "qDrag";
+    drag.textContent = "⋮⋮";
+    drag.title = "Drag to reorder (desktop)";
+    li.appendChild(drag);
+
+    const meta = document.createElement("div");
+    meta.className = "qMeta";
+
+    const title = document.createElement("div");
+    title.className = "qTitle";
+    title.textContent = t?.title || "—";
+
+    const sub = document.createElement("div");
+    sub.className = "qSub";
+    sub.textContent = `${t?.section || "Other"} • BPM ${t?._bpm ?? "—"}`;
+
+    meta.appendChild(title);
+    meta.appendChild(sub);
+    li.appendChild(meta);
+
+    const btns = document.createElement("div");
+    btns.className = "qBtns";
+
+    const up = document.createElement("button");
+    up.className = "qBtn";
+    up.type = "button";
+    up.textContent = "↑";
+    up.title = "Move up";
+    up.onclick = () => moveQueue(pos, Math.max(0, pos - 1));
+
+    const down = document.createElement("button");
+    down.className = "qBtn";
+    down.type = "button";
+    down.textContent = "↓";
+    down.title = "Move down";
+    down.onclick = () => moveQueue(pos, Math.min(queue.length - 1, pos + 1));
+
+    const play = document.createElement("button");
+    play.className = "qBtn";
+    play.type = "button";
+    play.textContent = "▶";
+    play.title = "Play from here";
+    play.onclick = () => {
+      playQueueMode = true;
+      queuePos = pos;
+      btnQueueMode.setAttribute("aria-pressed", "true");
+      saveQueue();
+      renderQueue();
+      loadByIndex(queue[queuePos], true);
+    };
+
+    const del = document.createElement("button");
+    del.className = "qBtn";
+    del.type = "button";
+    del.textContent = "✕";
+    del.title = "Remove";
+    del.onclick = () => removeFromQueue(pos);
+
+    btns.appendChild(up);
+    btns.appendChild(down);
+    btns.appendChild(play);
+    btns.appendChild(del);
+
+    li.appendChild(btns);
+
+    li.addEventListener("click", () => {
+      playQueueMode = true;
+      queuePos = pos;
+      btnQueueMode.setAttribute("aria-pressed", "true");
+      saveQueue();
+      renderQueue();
+      loadByIndex(queue[queuePos], true);
+      openSheet();
+    });
+
+    // Desktop drag reorder inside queue
+    li.draggable = true;
+    li.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/qpos", String(pos));
+    });
+    li.addEventListener("dragover", (e) => e.preventDefault());
+    li.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const from = Number(e.dataTransfer.getData("text/qpos"));
+      const to = pos;
+      if(Number.isFinite(from)) moveQueue(from, to);
+    });
+
+    queueEl.appendChild(li);
+  });
+
+  highlightActive();
+}
+
+// ---- render list ----
 function renderList(){
   listEl.innerHTML = "";
+
   view.forEach(({t, realIndex})=>{
     const li = document.createElement("li");
     li.className = "item";
     li.dataset.realIndex = String(realIndex);
 
+    // checkbox for select mode
+    if(selectMode){
+      const selBox = document.createElement("div");
+      selBox.className = "selBox";
+      selBox.textContent = selected.has(realIndex) ? "✓" : "";
+      li.appendChild(selBox);
+    }
+
     const badge = document.createElement("div");
     badge.className = "badge";
     badge.textContent = t.coverEmoji || coverEmoji(t.section);
+    li.appendChild(badge);
 
     const meta = document.createElement("div");
     meta.className = "itemMeta";
@@ -253,20 +536,44 @@ function renderList(){
     meta.appendChild(title);
     meta.appendChild(sub);
 
-    li.appendChild(badge);
     li.appendChild(meta);
 
+    // Add-to-queue button (tap-friendly on iPhone)
+    const add = document.createElement("button");
+    add.className = "addBtn";
+    add.type = "button";
+    add.textContent = "➕";
+    add.title = "Add to Queue";
+    add.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      addToQueue(realIndex);
+    });
+    li.appendChild(add);
+
+    // click behavior
     li.addEventListener("click", ()=>{
+      if(selectMode){
+        toggleSelected(realIndex);
+        return;
+      }
       loadByIndex(realIndex, true);
-      openSheet(); // trải nghiệm “app”
+      openSheet();
+    });
+
+    // Desktop drag into cart
+    li.draggable = true;
+    li.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", String(realIndex));
     });
 
     listEl.appendChild(li);
   });
 
   highlightActive();
+  highlightSelectedInDOM();
 }
 
+// ---- durations (optional) ----
 async function loadDurations(){
   await Promise.all(tracks.map(t => new Promise((resolve)=>{
     const a = new Audio();
@@ -277,15 +584,7 @@ async function loadDurations(){
   })));
 }
 
-function openSheet(){
-  sheet.classList.add("show");
-  sheet.setAttribute("aria-hidden", "false");
-}
-function closeSheet(){
-  sheet.classList.remove("show");
-  sheet.setAttribute("aria-hidden", "true");
-}
-
+// ---- events ----
 btnReload.addEventListener("click", ()=> location.reload());
 
 btnPlay.addEventListener("click", async ()=>{
@@ -294,35 +593,18 @@ btnPlay.addEventListener("click", async ()=>{
     else audio.pause();
   }catch{}
   updatePlayIcons();
-  persist();
+  persistUI();
 });
 miniPlay.addEventListener("click", ()=> btnPlay.click());
 btnPlay2.addEventListener("click", ()=> btnPlay.click());
 
-btnNext.addEventListener("click", ()=> loadByIndex(pickNextIndex(), true));
+btnNext.addEventListener("click", ()=> playNext());
 miniNext.addEventListener("click", ()=> btnNext.click());
 btnNext2.addEventListener("click", ()=> btnNext.click());
 
-btnPrev.addEventListener("click", ()=>{
-  if(audio.currentTime > 3){ audio.currentTime = 0; return; }
-  loadByIndex(index - 1, true);
-});
+btnPrev.addEventListener("click", ()=> playPrev());
 miniPrev.addEventListener("click", ()=> btnPrev.click());
 btnPrev2.addEventListener("click", ()=> btnPrev.click());
-
-function setShuffle(v){
-  isShuffle = v;
-  btnShuffle.setAttribute("aria-pressed", String(isShuffle));
-  btnShuffle2.setAttribute("aria-pressed", String(isShuffle));
-  persist();
-}
-function setLoop(v){
-  isLoop = v;
-  audio.loop = isLoop;
-  btnLoop.setAttribute("aria-pressed", String(isLoop));
-  btnLoop2.setAttribute("aria-pressed", String(isLoop));
-  persist();
-}
 
 btnShuffle.addEventListener("click", ()=> setShuffle(!isShuffle));
 btnShuffle2.addEventListener("click", ()=> setShuffle(!isShuffle));
@@ -332,12 +614,12 @@ btnLoop2.addEventListener("click", ()=> setLoop(!isLoop));
 vol.addEventListener("input", ()=>{
   audio.volume = Number(vol.value);
   vol2.value = vol.value;
-  persist();
+  persistUI();
 });
 vol2.addEventListener("input", ()=>{
   audio.volume = Number(vol2.value);
   vol.value = vol2.value;
-  persist();
+  persistUI();
 });
 
 seek.addEventListener("input", ()=>{
@@ -360,31 +642,87 @@ audio.addEventListener("timeupdate", ()=>{
     seek.value = String(p);
     seek2.value = String(p);
   }
-  if(Math.floor(audio.currentTime) % 5 === 0) persist();
+  if(Math.floor(audio.currentTime) % 5 === 0) persistUI();
 });
 
 audio.addEventListener("play", updatePlayIcons);
 audio.addEventListener("pause", updatePlayIcons);
 audio.addEventListener("ended", ()=>{
-  if(isLoop) return;
-  loadByIndex(pickNextIndex(), true);
+  if(isLoop) return; // native loop
+  playNext();
 });
 
-q.addEventListener("input", applyQuery);
-sectionSel.addEventListener("change", applyQuery);
-sortSel.addEventListener("change", applyQuery);
-
+// sheet open/close
 miniOpen.addEventListener("click", openSheet);
 sheetBack.addEventListener("click", closeSheet);
 sheetClose.addEventListener("click", closeSheet);
 
-// Safety: show useful error if file name has bad chars/case mismatch
+// query controls
+q.addEventListener("input", applyQuery);
+sectionSel.addEventListener("change", applyQuery);
+sortSel.addEventListener("change", applyQuery);
+
+// multi-select buttons
+btnSelectMode.addEventListener("click", ()=> setSelectMode(!selectMode));
+btnSelectAll.addEventListener("click", ()=>{
+  if(!view.length) return;
+  view.forEach(x => selected.add(x.realIndex));
+  updateMultiInfo();
+  highlightSelectedInDOM();
+});
+btnClearSel.addEventListener("click", ()=>{
+  selected.clear();
+  updateMultiInfo();
+  highlightSelectedInDOM();
+});
+btnAddSelected.addEventListener("click", ()=>{
+  if(!selected.size) return;
+  // Add theo thứ tự hiện tại trong view (đúng kiểu giỏ hàng)
+  const ordered = view.map(x => x.realIndex).filter(ri => selected.has(ri));
+  ordered.forEach(ri => addToQueue(ri));
+  selected.clear();
+  updateMultiInfo();
+  renderQueue();
+  highlightSelectedInDOM();
+});
+
+// queue/cart buttons
+btnQueueMode.addEventListener("click", ()=>{
+  playQueueMode = !playQueueMode;
+  btnQueueMode.setAttribute("aria-pressed", String(playQueueMode));
+  saveQueue();
+  renderQueue();
+});
+btnClearQueue.addEventListener("click", ()=>{
+  queue = [];
+  queuePos = 0;
+  saveQueue();
+  renderQueue();
+});
+
+// cart drop (desktop)
+if(cartDrop){
+  cartDrop.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    cartDrop.classList.add("isOver");
+  });
+  cartDrop.addEventListener("dragleave", () => cartDrop.classList.remove("isOver"));
+  cartDrop.addEventListener("drop", (e) => {
+    e.preventDefault();
+    cartDrop.classList.remove("isOver");
+    const realIndex = Number(e.dataTransfer.getData("text/plain"));
+    if(Number.isFinite(realIndex)) addToQueue(realIndex);
+  });
+}
+
+// friendly error
 audio.addEventListener("error", ()=>{
   alert("Không phát được bài này từ playlist.\n" +
         "Gợi ý: đổi tên file không dấu, không ký tự # % ? & +, và đúng hoa/thường.\n" +
         "Ví dụ: cardio-145bpm.mp3");
 });
 
+// ---- init ----
 async function init(){
   const res = await fetch("tracks.json", { cache: "no-store" });
   tracks = await res.json();
@@ -398,22 +736,19 @@ async function init(){
     bpm: t.bpm ?? null,
     coverEmoji: t.coverEmoji || coverEmoji(t.section || "Other"),
     _bpm: (t.bpm != null) ? t.bpm : (parseBpm(t.title) ?? parseBpm(t.file)),
-    _added: i
+    _added: i,
+    _dur: null,
   }));
 
-  restore();
+  restoreUI();
+  loadQueue();
 
-  brandSub.textContent = `${tracks.length} bài • ${isShuffle ? "Shuffle ON" : "Shuffle OFF"}`;
+  brandSub.textContent = `${tracks.length} bài • ${isShuffle ? "Shuffle ON" : "Shuffle OFF"} • ${playQueueMode ? "Play Queue" : "Normal"}`;
 
-  // Deep link ?t=
-  const url = new URL(location.href);
-  const tid = url.searchParams.get("t");
-  const found = tracks.findIndex(x => String(x.id) === String(tid));
-  if(found >= 0) index = found;
-
+  // initial load
   loadByIndex(index, false);
 
-  // Restore time
+  // restore time
   try{
     const s = JSON.parse(localStorage.getItem("musicpro_ui_state") || "null");
     if(s && Number.isFinite(s.time) && s.time > 0){
@@ -421,11 +756,16 @@ async function init(){
     }
   }catch{}
 
+  // render + queue
   applyQuery();
+  updateMultiInfo();
+  renderQueue();
+
+  // optional: load durations then refresh pills
   loadDurations().then(()=> applyQuery());
 }
 
 init().catch(err=>{
-  brandSub.textContent = "Failed to load tracks.json";
   console.error(err);
+  brandSub.textContent = "Failed to load tracks.json";
 });
