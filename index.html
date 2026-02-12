@@ -9,28 +9,23 @@
 </head>
 
 <body>
-  <!-- Fixed background layer (iOS Safari stable) -->
   <div class="bg" aria-hidden="true"></div>
 
   <div class="app">
-    <!-- Top -->
     <header class="topbar">
       <div class="brand">
         <div class="logo" aria-hidden="true">♪</div>
         <div class="brandText">
           <div class="brandName">MusicPro</div>
-          <div class="brandSub" id="brandSub">Workout player • iOS Safari friendly</div>
+          <div class="brandSub" id="brandSub">Loading…</div>
         </div>
       </div>
 
-      <button class="iconBtn" id="btnReload" title="Reload" type="button">
-        <span aria-hidden="true">↻</span>
-      </button>
+      <button class="iconBtn" id="btnReload" title="Reload" type="button">↻</button>
     </header>
 
-    <!-- Content -->
     <main class="main">
-      <!-- Hero / Player -->
+      <!-- Player -->
       <section class="hero card">
         <div class="artWrap">
           <div class="art" id="art">💪</div>
@@ -98,11 +93,46 @@
           </div>
         </div>
 
-        <ul class="list" id="list"></ul>
+        <!-- Multi-select -->
+        <div class="multiBar" id="multiBar">
+          <button class="chip" id="btnSelectMode" type="button" aria-pressed="false">☑ Select</button>
+          <div class="multiInfo" id="multiInfo">0 selected</div>
+          <div class="multiActions">
+            <button class="chip" id="btnSelectAll" type="button">Select all</button>
+            <button class="chip" id="btnClearSel" type="button">Clear</button>
+            <button class="chip primary" id="btnAddSelected" type="button">➕ Add selected</button>
+          </div>
+        </div>
+
+        <!-- List + Queue -->
+        <div class="libGrid">
+          <div class="libCol">
+            <ul class="list" id="list"></ul>
+          </div>
+
+          <aside class="cart card2" id="cart">
+            <div class="cartHead">
+              <div class="cartTitle">🛒 Queue</div>
+              <div class="cartSub" id="cartSub">0 bài</div>
+            </div>
+
+            <div class="cartActions">
+              <button class="chip primary" id="btnQueueMode" aria-pressed="true" type="button">▶ Play Queue</button>
+              <button class="chip" id="btnClearQueue" type="button">🧹 Clear</button>
+            </div>
+
+            <div class="cartDrop" id="cartDrop">
+              Kéo thả bài vào đây (desktop)<br/>
+              hoặc bấm <b>➕</b> / <b>Add selected</b> (iPhone)
+            </div>
+
+            <ol class="queue" id="queue"></ol>
+          </aside>
+        </div>
       </section>
     </main>
 
-    <!-- Bottom Now Playing (fixed for iOS) -->
+    <!-- Mini player fixed bottom -->
     <footer class="mini" id="mini">
       <button class="miniMain" id="miniOpen" type="button" title="Open player">
         <div class="miniArt" id="miniArt">💪</div>
@@ -125,6 +155,7 @@
     <div class="sheetBack" id="sheetBack"></div>
     <div class="sheetCard" role="dialog" aria-modal="true">
       <div class="grab" aria-hidden="true"></div>
+
       <div class="sheetTop">
         <div class="sheetArt" id="sheetArt">💪</div>
         <div class="sheetMeta">
