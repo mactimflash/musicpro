@@ -5,8 +5,6 @@
   --text:#eaf0ff;
   --muted: rgba(234,240,255,.70);
   --muted2: rgba(234,240,255,.52);
-  --accent:#5aa7ff;
-  --accent2:#6ef2b2;
   --shadow: 0 18px 45px rgba(0,0,0,.38);
   --r: 22px;
 }
@@ -21,7 +19,7 @@ body{
   font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial;
 }
 
-/* Fixed background layer = ổn định trên iOS Safari */
+/* Fixed background layer (iOS Safari stable) */
 .bg{
   position: fixed;
   inset: 0;
@@ -40,11 +38,10 @@ body{
   flex-direction:column;
 }
 
-/* Topbar fixed safe-area */
 .topbar{
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 40;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -55,7 +52,7 @@ body{
   border-bottom: 1px solid var(--border);
 }
 
-.brand{ display:flex; gap:12px; align-items:center; }
+.brand{ display:flex; gap:12px; align-items:center; min-width:0; }
 .logo{
   width:38px;height:38px;border-radius:14px;
   display:grid;place-items:center;
@@ -91,8 +88,8 @@ body{
   display:grid;
   gap: 14px;
 
-  /* chừa chỗ cho mini player fixed */
-  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  /* Leave space for fixed mini player */
+  padding-bottom: calc(104px + env(safe-area-inset-bottom));
 }
 @media (min-width: 880px){
   .main{
@@ -110,7 +107,6 @@ body{
   backdrop-filter: blur(10px);
 }
 
-/* HERO */
 .hero{
   padding: 14px;
   display:grid;
@@ -217,6 +213,10 @@ input[type="range"]{
   font-size: 13px;
   min-height: 42px;
 }
+.chip.primary{
+  border-color: rgba(90,167,255,.55);
+  background: rgba(90,167,255,.18);
+}
 .chip[aria-pressed="true"]{
   border-color: rgba(90,167,255,.55);
   background: rgba(90,167,255,.14);
@@ -274,7 +274,46 @@ input[type="range"]{
   min-height: 42px;
 }
 
-.list{ list-style:none; margin: 10px 0 0; padding: 0; }
+/* MULTI SELECT BAR */
+.multiBar{
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.04);
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
+}
+.multiInfo{
+  color: var(--muted);
+  font-size: 13px;
+  flex: 1;
+  min-width: 110px;
+}
+.multiActions{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content:flex-end;
+}
+
+/* GRID: list + queue */
+.libGrid{
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+@media (min-width: 880px){
+  .libGrid{
+    grid-template-columns: 1fr 340px;
+    align-items: start;
+  }
+}
+
+/* List */
+.list{ list-style:none; margin: 0; padding: 0; }
 .item{
   display:flex;
   gap: 12px;
@@ -292,6 +331,22 @@ input[type="range"]{
 .item.active{
   border-color: rgba(90,167,255,.55);
   background: rgba(90,167,255,.12);
+}
+.item.selected{
+  border-color: rgba(110,242,178,.55);
+  background: rgba(110,242,178,.10);
+}
+
+.selBox{
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.04);
+  display:grid;
+  place-items:center;
+  font-size: 14px;
+  flex: 0 0 auto;
 }
 
 .badge{
@@ -322,13 +377,130 @@ input[type="range"]{
   font-variant-numeric: tabular-nums;
 }
 
-/* MINI PLAYER (fixed bottom, no gap) */
+/* Add-to-queue button */
+.addBtn{
+  margin-left:auto;
+  min-width: 44px; min-height: 44px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  color: var(--text);
+  font-size: 16px;
+}
+
+/* Queue / Cart */
+.card2{
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  backdrop-filter: blur(10px);
+}
+
+.cart{
+  padding: 12px;
+  position: sticky;
+  top: calc(70px + env(safe-area-inset-top));
+}
+@media (max-width: 879px){
+  .cart{ position: relative; top: 0; }
+}
+
+.cartHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap: 10px;
+}
+.cartTitle{ font-weight: 900; letter-spacing:.2px; }
+.cartSub{ font-size: 12px; color: var(--muted); }
+
+.cartActions{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.cartDrop{
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px dashed rgba(255,255,255,.18);
+  background: rgba(255,255,255,.03);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+.cartDrop.isOver{
+  border-color: rgba(90,167,255,.55);
+  background: rgba(90,167,255,.12);
+  color: var(--text);
+}
+
+.queue{
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.qItem{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+}
+.qItem.active{
+  border-color: rgba(90,167,255,.55);
+  background: rgba(90,167,255,.12);
+}
+
+.qDrag{
+  width: 34px; height: 34px;
+  display:grid; place-items:center;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  opacity: .9;
+  cursor: grab;
+  user-select: none;
+}
+
+.qMeta{ flex:1; min-width:0; }
+.qTitle{
+  font-weight: 800;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.qSub{
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+.qBtns{ display:flex; gap: 6px; }
+.qBtn{
+  min-width: 38px; min-height: 38px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font-size: 14px;
+}
+
+/* MINI PLAYER (fixed bottom) */
 .mini{
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 60;
+  z-index: 70;
 
   display:flex;
   gap: 10px;
@@ -372,7 +544,6 @@ input[type="range"]{
   color: var(--muted);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-
 .miniBtns{ display:flex; gap: 8px; }
 .miniBtns .iconBtn{
   min-width:46px;
